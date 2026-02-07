@@ -7,7 +7,7 @@
 
 /* CONTAINER */
 .streak-container {
-  min-height: 100vh;
+  min-height: 100svh; /* SAFE viewport for iOS */
   width: 100%;
   background: radial-gradient(circle at top, #222, #000);
   color: white;
@@ -16,9 +16,9 @@
   flex-direction: column;
   align-items: center;
 
-  padding: 16px 12px;
+  padding: 16px 12px 110px; /* ⬅ reserve space for buttons */
   font-family: "Segoe UI", sans-serif;
-  /* overflow: hidden; */
+
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -112,7 +112,7 @@
   gap: 8px;
   max-width: 320px;
   width: 100%;
-  flex-grow: 0;
+  /* flex-grow: 0; */
   margin-bottom: 16px;
 }
 .actions {
@@ -163,10 +163,24 @@
 
 /* ACTION BUTTONS – PREMIUM FEEL */
 .actions {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0);
+  left: 0;
+  right: 0;
+
   display: flex;
-  gap: 18px;
-  margin-top: auto;
-  margin-bottom: 10px;
+  justify-content: center;
+  gap: 14px;
+
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.95),
+    rgba(0,0,0,0.6),
+    transparent
+  );
+
+  z-index: 100;
 }
 
 .actions button {
@@ -211,9 +225,17 @@
     gap: 12px;
   }
 
-  .actions button {
-    flex: 1;
-    max-width: 140px;
-    padding: 14px 0;
-  }
+.actions button {
+  flex: 1;
+  max-width: 160px;
+
+  padding: 14px 0;
+  font-size: 15px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
 }
