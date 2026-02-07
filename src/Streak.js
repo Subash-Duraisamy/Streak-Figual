@@ -5,70 +5,116 @@ import "./Streak.css";
 
 function Streak({ user }) {
   const [streak, setStreak] = useState(0);
-  const [lastDate, setLastDate] = useState("");
+  const [longestStreak, setLongestStreak] = useState(0);
   const [completedDates, setCompletedDates] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [animate, setAnimate] = useState(false);
 
+  const today = new Date().toDateString();
+
+  /* 🔢 CURRENT STREAK (ENDS TODAY) */
+  const calculateCurrentStreak = (dates) => {
+    let count = 0;
+    let day = new Date();
+
+    while (dates.includes(day.toDateString())) {
+      count++;
+      day = new Date(day.getTime() - 86400000);
+    }
+
+    return count;
+  };
+
+  /* 🏆 LONGEST STREAK (HISTORY) */
+  const calculateLongestStreak = (dates) => {
+    if (dates.length === 0) return 0;
+
+    const sorted = dates
+      .map(d => new Date(d).getTime())
+      .sort((a, b) => a - b);
+
+    let max = 1;
+    let current = 1;
+
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] - sorted[i - 1] === 86400000) {
+        current++;
+        max = Math.max(max, current);
+      } else {
+        current = 1;
+      }
+    }
+
+    return max;
+  };
+
+  /* 🔄 LOAD USER DATA */
   useEffect(() => {
     const load = async () => {
       const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const data = snap.data();
-        setStreak(data.streak || 0);
-        setLastDate(data.lastDate || "");
-        setCompletedDates(data.completedDates || []);
-      }
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      const dates = data.completedDates || [];
+
+      const current = calculateCurrentStreak(dates);
+      const longest = calculateLongestStreak(dates);
+
+      setCompletedDates(dates);
+      setStreak(current);
+      setLongestStreak(longest);
+
+      await updateDoc(ref, {
+        streak: current,
+        longestStreak: longest,
+      });
     };
+
     load();
   }, [user]);
 
-  const today = new Date().toDateString();
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-  // YES
+  /* ✅ YES */
   const markYes = async () => {
-    if (lastDate === today) return;
+    if (completedDates.includes(today)) return;
 
-    const newStreak = lastDate === yesterday ? streak + 1 : 1;
-    const updatedDates = completedDates.includes(today)
-      ? completedDates
-      : [...completedDates, today];
+    const newDates = [...completedDates, today];
+    const newStreak = calculateCurrentStreak(newDates);
+    const newLongest = calculateLongestStreak(newDates);
 
     setAnimate(false);
     setTimeout(() => setAnimate(true), 50);
 
+    setCompletedDates(newDates);
     setStreak(newStreak);
-    setLastDate(today);
-    setCompletedDates(updatedDates);
+    setLongestStreak(newLongest);
 
     await updateDoc(doc(db, "users", user.uid), {
+      completedDates: newDates,
       streak: newStreak,
-      lastDate: today,
-      completedDates: updatedDates,
-      longestStreak: Math.max(newStreak, streak),
+      longestStreak: newLongest,
     });
   };
 
-  // NO
+  /* ❌ NO (REMOVE TODAY ONLY) */
   const markNo = async () => {
-    const updatedDates = completedDates.filter(d => d !== today);
+    const newDates = completedDates.filter(d => d !== today);
 
-    setAnimate(false);
+    const newStreak = calculateCurrentStreak(newDates);
+    const newLongest = calculateLongestStreak(newDates);
 
-    setStreak(0);
-    setLastDate("");
-    setCompletedDates(updatedDates);
+    setCompletedDates(newDates);
+    setStreak(newStreak);
+    setLongestStreak(newLongest);
 
     await updateDoc(doc(db, "users", user.uid), {
-      streak: 0,
-      lastDate: "",
-      completedDates: updatedDates,
+      completedDates: newDates,
+      streak: newStreak,
+      longestStreak: newLongest,
     });
   };
 
-  // Calendar
+  /* 📅 CALENDAR */
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
@@ -81,7 +127,6 @@ function Streak({ user }) {
 
   return (
     <div className="streak-container">
-      {/* HEADER */}
       <div className="streak-header">
         <div className={`flame ${streak > 0 ? "burning" : ""}`}>🔥</div>
 
@@ -89,24 +134,23 @@ function Streak({ user }) {
           {streak}
         </div>
 
-        <p className="motivation">Keep up your streak!</p>
+        <p className="motivation">
+          Longest streak: <strong>{longestStreak}</strong>
+        </p>
       </div>
 
-      {/* MONTH NAV */}
       <div className="month-nav">
         <button onClick={() => setCurrentMonth(new Date(year, month - 1, 1))}>‹</button>
         <span>{currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}</span>
         <button onClick={() => setCurrentMonth(new Date(year, month + 1, 1))}>›</button>
       </div>
 
-      {/* WEEKDAYS */}
       <div className="weekdays">
         {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
           <div key={d}>{d}</div>
         ))}
       </div>
 
-      {/* CALENDAR */}
       <div className="calendar">
         {days.map((day, i) => {
           if (!day) return <div key={i} />;
@@ -126,7 +170,6 @@ function Streak({ user }) {
         })}
       </div>
 
-      {/* ACTIONS */}
       <div className="actions">
         <button className="yes" onClick={markYes}>YES</button>
         <button className="no" onClick={markNo}>NO</button>
