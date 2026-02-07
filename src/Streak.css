@@ -18,7 +18,9 @@
 
   padding: 16px 12px;
   font-family: "Segoe UI", sans-serif;
-  overflow: hidden;
+  /* overflow: hidden; */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* HEADER */
@@ -110,8 +112,23 @@
   gap: 8px;
   max-width: 320px;
   width: 100%;
-  flex-grow: 1;
-  align-content: center;
+  flex-grow: 0;
+  margin-bottom: 16px;
+}
+.actions {
+  position: sticky;
+  bottom: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.95),
+    rgba(0,0,0,0.6),
+    transparent
+  );
+
+  padding: 14px 0 20px;
+  width: 100%;
+  justify-content: center;
 }
 
 .day {
@@ -184,5 +201,19 @@
 /* MOBILE */
 @media (max-width: 480px) {
   .streak-count { font-size: 52px; }
-  .day { width: 32px; height: 32px; }
+
+  .day {
+    width: 32px;
+    height: 32px;
+  }
+
+  .actions {
+    gap: 12px;
+  }
+
+  .actions button {
+    flex: 1;
+    max-width: 140px;
+    padding: 14px 0;
+  }
 }
