@@ -1,0 +1,143 @@
+/* 🌌 BACKGROUND */
+.time-bg {
+  height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(circle at center, #0b0b0b, #000);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* 🧊 GLASS */
+.time-glass {
+  padding: 100px 200px;
+  border-radius: 44px;
+
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px);
+
+  box-shadow:
+    0 0 120px rgba(255, 105, 180, 0.25),
+    inset 0 0 40px rgba(255,255,255,0.05);
+
+  text-align: center;
+  animation: float 8s ease-in-out infinite;
+}
+
+/* 🕰 TIME */
+.time-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family:
+    "Rubik Rounded",
+    "Nunito",
+    "Poppins",
+    system-ui,
+    sans-serif;
+
+  font-size: clamp(100px, 18vw, 190px);
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* ⏰ HOURS */
+.time-hours {
+  color: #ff9800;
+  text-shadow:
+    0 0 25px rgba(255, 166, 32, 0.65),
+    0 0 80px rgba(255, 166, 32, 0.65);
+}
+
+/* : COLON */
+.time-colon {
+  margin: 0 14px;
+  color: rgba(255,255,255,0.25);
+  animation: blink 1.6s infinite;
+}
+
+/* ⏱ MINUTES */
+.time-minutes {
+  color: #9b8cff;
+  text-shadow:
+    0 0 22px rgba(155,140,255,0.9),
+    0 0 70px rgba(155,140,255,0.7);
+}
+
+/* 🕓 AM / PM */
+.time-ampm {
+  margin-top: 6px;
+
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: clamp(14px, 2.5vw, 22px);
+  letter-spacing: 6px;
+
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 0 12px rgba(255,255,255,0.3);
+}
+
+/* 🔵 SECONDS */
+.time-seconds {
+  margin-top: 18px;
+
+  font-family:
+    "JetBrains Mono",
+    "SF Mono",
+    monospace;
+
+  font-size: clamp(22px, 4vw, 40px);
+  letter-spacing: 6px;
+
+  color: #6ee7ff;
+  text-shadow: 0 0 18px rgba(110,231,255,0.8);
+
+  animation: pulse 1s infinite;
+}
+
+/* 🌬 FLOAT */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+  100% { transform: translateY(0); }
+}
+
+/* ❤️ SECONDS PULSE */
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* ⏳ COLON BLINK */
+@keyframes blink {
+  0% { opacity: 0.25; }
+  50% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+
+/* 🔽 NAV AUTO-HIDE */
+body.nav-hidden .navbar-wrapper {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+}
+
+.navbar-wrapper {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 480px) {
+  .time-glass {
+    padding: 40px 30px;
+  }
+
+  .time-main {
+    font-size: clamp(84px, 22vw, 150px);
+  }
+}
